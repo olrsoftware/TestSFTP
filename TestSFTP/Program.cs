@@ -16,7 +16,6 @@ namespace TestSFTP
             string username = args[1];
             string password = args[2];
             string remoteDirectory = args[3];
-            
 
             using (SftpClient sftp = new SftpClient(host, username, password))
             {
@@ -25,7 +24,11 @@ namespace TestSFTP
                     sftp.Connect();
 
                     var files = sftp.ListDirectory(remoteDirectory);
-                    sftp.CreateDirectory(remoteDirectory + "/test");
+                    if (!sftp.Exists("/test"))
+                    {
+                        sftp.CreateDirectory("/test");
+                    }
+
                     foreach (var file in files)
                     {
                         Console.WriteLine(file.Name);
@@ -37,7 +40,7 @@ namespace TestSFTP
                         }
                         using (FileStream stream = new FileStream(newFile, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
                         {
-                            sftp.UploadFile(stream, string.Format("{0}/{1}/{2}", remoteDirectory, "test", file.Name),true);
+                            sftp.UploadFile(stream, string.Format("/test/{0}", file.Name),true);
                         }
                     }
                     sftp.Disconnect();
